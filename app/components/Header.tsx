@@ -1,4 +1,5 @@
 import Link from "next/link";
+import LogoutButton from "./LogoutButton";
 
 export default function Header() {
   return (
@@ -23,6 +24,7 @@ export default function Header() {
           >
             作品を登録
           </Link>
+          <LogoutButton />
         </nav>
       </div>
     </header>

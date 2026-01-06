@@ -1,4 +1,16 @@
-import { sql } from "@vercel/postgres";
+import postgres from "postgres";
+
+// データベース接続の設定
+const connectionString = process.env.POSTGRES_URL;
+
+if (!connectionString) {
+  throw new Error("POSTGRES_URL environment variable is not set");
+}
+
+// PostgreSQL接続クライアントの作成
+export const sql = postgres(connectionString, {
+  ssl: "require",
+});
 
 // データベース接続の確認用（開発時に使用）
 export async function testConnection() {
@@ -29,4 +41,45 @@ export type Pattern = {
   display_order: number;
   created_at: Date;
 };
+
+// 作品一覧を取得する関数
+export async function getProjects() {
+  try {
+    const projects = await sql<Project[]>`
+      SELECT * FROM projects
+      ORDER BY created_at DESC
+    `;
+    return projects;
+  } catch (error) {
+    console.error("Error fetching projects:", error);
+    return [];
+  }
+}
+
+// 作品の詳細を取得する関数（編み図も含む）
+export async function getProjectById(id: number) {
+  try {
+    const [project] = await sql<Project[]>`
+      SELECT * FROM projects WHERE id = ${id}
+    `;
+    
+    if (!project) {
+      return null;
+    }
+    
+    const patterns = await sql<Pattern[]>`
+      SELECT * FROM patterns
+      WHERE project_id = ${id}
+      ORDER BY display_order ASC
+    `;
+    
+    return {
+      ...project,
+      patterns: patterns || [],
+    };
+  } catch (error) {
+    console.error("Error fetching project:", error);
+    return null;
+  }
+}
 
