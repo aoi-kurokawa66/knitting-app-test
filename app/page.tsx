@@ -1,6 +1,10 @@
 import { getProjects } from "./lib/db";
 import ProjectCard from "./components/ProjectCard";
 
+// キャッシュを無効化して常に最新データを取得
+export const revalidate = 0;
+export const dynamic = "force-dynamic";
+
 export default async function Home() {
   const projects = await getProjects();
 
