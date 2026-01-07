@@ -1,5 +1,8 @@
+"use client";
+
 import Link from "next/link";
 import Image from "next/image";
+import { useState } from "react";
 import type { Project } from "../lib/db";
 
 type ProjectCardProps = {
@@ -7,19 +10,23 @@ type ProjectCardProps = {
 };
 
 export default function ProjectCard({ project }: ProjectCardProps) {
+  const [imageError, setImageError] = useState(false);
+
   return (
     <Link
       href={`/projects/${project.id}`}
       className="group block overflow-hidden rounded-lg border border-zinc-200 bg-white transition-shadow hover:shadow-lg dark:border-zinc-800 dark:bg-zinc-900"
     >
       {/* 完成写真 */}
-      {project.completed_image_url ? (
+      {project.completed_image_url && !imageError ? (
         <div className="relative aspect-square w-full overflow-hidden bg-zinc-100 dark:bg-zinc-800">
           <Image
             src={project.completed_image_url}
             alt={project.title}
             fill
             className="object-cover transition-transform group-hover:scale-105"
+            unoptimized={project.completed_image_url.startsWith("data:")}
+            onError={() => setImageError(true)}
           />
         </div>
       ) : (

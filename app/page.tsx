@@ -13,6 +13,12 @@ export default async function Home() {
         <p className="mt-2 text-zinc-600 dark:text-zinc-400">
           みんなの編み物作品を見て、一緒に編もう
         </p>
+        {/* デバッグ用: 作品数を表示 */}
+        {process.env.NODE_ENV === "development" && (
+          <p className="mt-1 text-xs text-zinc-400">
+            作品数: {projects.length}
+          </p>
+        )}
       </div>
 
       {/* 作品一覧 */}
