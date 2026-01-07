@@ -29,8 +29,12 @@ export default function DeleteButton({ projectId }: DeleteButtonProps) {
         throw new Error("作品の削除に失敗しました");
       }
 
-      router.push("/");
-      router.refresh();
+      // 削除後にホームページにリダイレクトし、確実に最新データを取得
+      router.replace("/");
+      // ナビゲーション完了後にリフレッシュ
+      setTimeout(() => {
+        router.refresh();
+      }, 100);
     } catch (error) {
       console.error("Error deleting project:", error);
       alert("作品の削除に失敗しました");
