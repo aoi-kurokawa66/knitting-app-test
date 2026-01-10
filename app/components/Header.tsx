@@ -8,7 +8,7 @@ export default function Header() {
           href="/"
           className="text-xl font-bold text-zinc-900 dark:text-zinc-50"
         >
-          編み物共有アプリ
+          編み物APP
         </Link>
         <nav className="flex items-center gap-4 sm:gap-6">
           <Link
