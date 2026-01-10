@@ -1,5 +1,5 @@
 import { getProjects } from "./lib/db";
-import ProjectCard from "./components/ProjectCard";
+import ProjectList from "./components/ProjectList";
 
 // キャッシュを無効化して常に最新データを取得
 export const revalidate = 0;
@@ -25,22 +25,8 @@ export default async function Home() {
         )}
       </div>
 
-      {/* 作品一覧 */}
-      {projects.length === 0 ? (
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          <div className="flex min-h-[400px] items-center justify-center rounded-lg border-2 border-dashed border-zinc-300 dark:border-zinc-700">
-            <p className="text-zinc-500 dark:text-zinc-400">
-              作品が登録されるとここに表示されます
-            </p>
-          </div>
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {projects.map((project) => (
-            <ProjectCard key={project.id} project={project} />
-          ))}
-        </div>
-      )}
+      {/* 作品一覧（カテゴリフィルター付き） */}
+      <ProjectList projects={projects} />
     </div>
   );
 }

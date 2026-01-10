@@ -18,6 +18,12 @@ export default function Header() {
             作品一覧
           </Link>
           <Link
+            href="/gallery"
+            className="text-sm font-medium text-zinc-600 transition-colors hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-50"
+          >
+            完成写真
+          </Link>
+          <Link
             href="/create"
             className="rounded-full bg-zinc-900 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-zinc-800 dark:bg-zinc-50 dark:text-zinc-900 dark:hover:bg-zinc-200"
           >

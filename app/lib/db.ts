@@ -10,6 +10,8 @@ if (!connectionString) {
 // PostgreSQL接続クライアントの作成
 export const sql = postgres(connectionString, {
   ssl: "require",
+  // 準備済みステートメントを無効化してスキーマ変更時のキャッシュ問題を回避
+  prepare: false,
 });
 
 // データベース接続の確認用（開発時に使用）
@@ -23,6 +25,8 @@ export async function testConnection() {
 }
 
 // 型定義（後で使用）
+export type Category = "かぎ針" | "ぼう針" | null;
+
 export type Project = {
   id: number;
   title: string;
@@ -30,6 +34,7 @@ export type Project = {
   completed_image_url: string | null;
   youtube_url: string | null;
   yarn_color_count: number;
+  category: Category;
   created_at: Date;
   updated_at: Date;
 };

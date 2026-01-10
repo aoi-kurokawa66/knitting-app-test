@@ -15,6 +15,7 @@ export default function CreateProjectPage() {
     completed_image_url: "",
     youtube_url: "",
     yarn_color_count: "0",
+    category: "" as "かぎ針" | "ぼう針" | "",
   });
   const [patternImages, setPatternImages] = useState<string[]>([]);
 
@@ -32,6 +33,7 @@ export default function CreateProjectPage() {
           ...formData,
           yarn_color_count: parseInt(formData.yarn_color_count, 10),
           pattern_images: patternImages,
+          category: formData.category || null,
         }),
       });
 
@@ -180,6 +182,31 @@ export default function CreateProjectPage() {
               className="mt-1 block w-full rounded-md border border-zinc-300 bg-white px-3 py-2 shadow-sm focus:border-zinc-500 focus:outline-none focus:ring-zinc-500 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-50 sm:text-sm"
               placeholder="https://www.youtube.com/watch?v=..."
             />
+          </div>
+
+          {/* カテゴリ */}
+          <div>
+            <label
+              htmlFor="category"
+              className="block text-sm font-medium text-zinc-700 dark:text-zinc-300"
+            >
+              カテゴリ
+            </label>
+            <select
+              id="category"
+              value={formData.category}
+              onChange={(e) =>
+                setFormData({
+                  ...formData,
+                  category: e.target.value as "かぎ針" | "ぼう針" | "",
+                })
+              }
+              className="mt-1 block w-full rounded-md border border-zinc-300 bg-white px-3 py-2 shadow-sm focus:border-zinc-500 focus:outline-none focus:ring-zinc-500 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-50 sm:text-sm"
+            >
+              <option value="">選択してください</option>
+              <option value="かぎ針">かぎ針</option>
+              <option value="ぼう針">ぼう針</option>
+            </select>
           </div>
 
           {/* 糸の色の数 */}

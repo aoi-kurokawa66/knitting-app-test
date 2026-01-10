@@ -21,12 +21,21 @@ export async function PUT(
       youtube_url,
       yarn_color_count,
       pattern_images,
+      category,
     } = body;
 
     // バリデーション
     if (!title || typeof yarn_color_count !== "number") {
       return NextResponse.json(
         { error: "タイトルと糸の色の数は必須です" },
+        { status: 400 }
+      );
+    }
+
+    // カテゴリのバリデーション
+    if (category && category !== "かぎ針" && category !== "ぼう針") {
+      return NextResponse.json(
+        { error: "カテゴリは「かぎ針」または「ぼう針」である必要があります" },
         { status: 400 }
       );
     }
@@ -39,7 +48,8 @@ export async function PUT(
         description = ${description || null},
         completed_image_url = ${completed_image_url || null},
         youtube_url = ${youtube_url || null},
-        yarn_color_count = ${yarn_color_count}
+        yarn_color_count = ${yarn_color_count},
+        category = ${category || null}
       WHERE id = ${projectId}
     `;
 
@@ -65,8 +75,16 @@ export async function PUT(
     return NextResponse.json({ success: true }, { status: 200 });
   } catch (error) {
     console.error("Error updating project:", error);
+    // エラーの詳細をログに記録
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    const errorStack = error instanceof Error ? error.stack : undefined;
+    console.error("Error details:", { message: errorMessage, stack: errorStack });
+    
     return NextResponse.json(
-      { error: "作品の更新に失敗しました" },
+      { 
+        error: "作品の更新に失敗しました",
+        details: process.env.NODE_ENV === "development" ? errorMessage : undefined
+      },
       { status: 500 }
     );
   }
