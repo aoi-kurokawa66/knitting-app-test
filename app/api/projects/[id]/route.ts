@@ -17,7 +17,7 @@ export async function PUT(
     const {
       title,
       description,
-      completed_image_url,
+      completed_images,
       youtube_url,
       yarn_color_count,
       pattern_images,
@@ -46,12 +46,31 @@ export async function PUT(
       SET 
         title = ${title},
         description = ${description || null},
-        completed_image_url = ${completed_image_url || null},
+        completed_image_url = NULL,
         youtube_url = ${youtube_url || null},
         yarn_color_count = ${yarn_color_count},
         category = ${category || null}
       WHERE id = ${projectId}
     `;
+
+    // 既存の完成写真を削除
+    await sql`DELETE FROM completed_images WHERE project_id = ${projectId}`;
+
+    // 新しい完成写真を追加
+    if (completed_images && Array.isArray(completed_images)) {
+      const validCompletedImages = completed_images.filter(
+        (url: string) => url && url.trim() !== ""
+      );
+
+      if (validCompletedImages.length > 0) {
+        for (let index = 0; index < validCompletedImages.length; index++) {
+          await sql`
+            INSERT INTO completed_images (project_id, image_url, display_order)
+            VALUES (${projectId}, ${validCompletedImages[index]}, ${index})
+          `;
+        }
+      }
+    }
 
     // 既存の編み図を削除
     await sql`DELETE FROM patterns WHERE project_id = ${projectId}`;

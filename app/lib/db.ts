@@ -37,6 +37,7 @@ export type Project = {
   category: Category;
   created_at: Date;
   updated_at: Date;
+  first_completed_image_url?: string | null; // 完成写真の1枚目（ギャラリー用）
 };
 
 export type Pattern = {
@@ -47,12 +48,29 @@ export type Pattern = {
   created_at: Date;
 };
 
-// 作品一覧を取得する関数
+export type CompletedImage = {
+  id: number;
+  project_id: number;
+  image_url: string;
+  display_order: number;
+  created_at: Date;
+};
+
+// 作品一覧を取得する関数（完成写真の1枚目も含む）
 export async function getProjects() {
   try {
     const projects = await sql<Project[]>`
-      SELECT * FROM projects
-      ORDER BY created_at DESC
+      SELECT 
+        p.*,
+        (
+          SELECT image_url 
+          FROM completed_images 
+          WHERE project_id = p.id 
+          ORDER BY display_order ASC 
+          LIMIT 1
+        ) as first_completed_image_url
+      FROM projects p
+      ORDER BY p.created_at DESC
     `;
     return projects;
   } catch (error) {
@@ -61,7 +79,7 @@ export async function getProjects() {
   }
 }
 
-// 作品の詳細を取得する関数（編み図も含む）
+// 作品の詳細を取得する関数（編み図と完成写真も含む）
 export async function getProjectById(id: number) {
   try {
     const [project] = await sql<Project[]>`
@@ -78,9 +96,16 @@ export async function getProjectById(id: number) {
       ORDER BY display_order ASC
     `;
     
+    const completedImages = await sql<CompletedImage[]>`
+      SELECT * FROM completed_images
+      WHERE project_id = ${id}
+      ORDER BY display_order ASC
+    `;
+    
     return {
       ...project,
       patterns: patterns || [],
+      completedImages: completedImages || [],
     };
   } catch (error) {
     console.error("Error fetching project:", error);

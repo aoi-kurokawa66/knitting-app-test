@@ -18,14 +18,14 @@ export default function ProjectCard({ project }: ProjectCardProps) {
       className="group block overflow-hidden rounded-lg border border-zinc-200 bg-white transition-shadow hover:shadow-lg dark:border-zinc-800 dark:bg-zinc-900"
     >
       {/* 完成写真 */}
-      {project.completed_image_url && !imageError ? (
+      {(project.first_completed_image_url || project.completed_image_url) && !imageError ? (
         <div className="relative aspect-square w-full overflow-hidden bg-zinc-100 dark:bg-zinc-800">
           <Image
-            src={project.completed_image_url}
+            src={(project.first_completed_image_url || project.completed_image_url)!}
             alt={project.title}
             fill
             className="object-cover transition-transform group-hover:scale-105"
-            unoptimized={project.completed_image_url.startsWith("data:")}
+            unoptimized={(project.first_completed_image_url || project.completed_image_url)!.startsWith("data:")}
             onError={() => setImageError(true)}
           />
         </div>

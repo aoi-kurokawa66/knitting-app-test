@@ -3,8 +3,8 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import type { Project, Pattern } from "../lib/db";
-import ImageUpload from "./ImageUpload";
+import type { Project, Pattern, CompletedImage } from "../lib/db";
+import CompletedImageInput from "./CompletedImageInput";
 import PatternInput from "./PatternInput";
 
 type EditProjectFormProps = {
@@ -17,11 +17,14 @@ export default function EditProjectForm({ project }: EditProjectFormProps) {
   const [formData, setFormData] = useState({
     title: project.title,
     description: project.description || "",
-    completed_image_url: project.completed_image_url || "",
     youtube_url: project.youtube_url || "",
     yarn_color_count: project.yarn_color_count.toString(),
     category: (project.category || "") as "かぎ針" | "ぼう針" | "",
   });
+  const [completedImages, setCompletedImages] = useState<string[]>(
+    (project as any).completedImages?.map((img: CompletedImage) => img.image_url) || 
+    (project.completed_image_url ? [project.completed_image_url] : [])
+  );
   const [patternImages, setPatternImages] = useState<string[]>(
     project.patterns?.map((p) => p.image_url) || []
   );
@@ -39,6 +42,7 @@ export default function EditProjectForm({ project }: EditProjectFormProps) {
         body: JSON.stringify({
           ...formData,
           yarn_color_count: parseInt(formData.yarn_color_count, 10),
+          completed_images: completedImages,
           pattern_images: patternImages,
           category: formData.category || null,
         }),
@@ -72,6 +76,34 @@ export default function EditProjectForm({ project }: EditProjectFormProps) {
 
   const removePatternImage = (index: number) => {
     setPatternImages(patternImages.filter((_, i) => i !== index));
+  };
+
+  const addCompletedImage = () => {
+    setCompletedImages([...completedImages, ""]);
+  };
+
+  const updateCompletedImage = (index: number, value: string) => {
+    const updated = [...completedImages];
+    updated[index] = value;
+    setCompletedImages(updated);
+  };
+
+  const removeCompletedImage = (index: number) => {
+    setCompletedImages(completedImages.filter((_, i) => i !== index));
+  };
+
+  const moveCompletedImageUp = (index: number) => {
+    if (index === 0) return;
+    const updated = [...completedImages];
+    [updated[index - 1], updated[index]] = [updated[index], updated[index - 1]];
+    setCompletedImages(updated);
+  };
+
+  const moveCompletedImageDown = (index: number) => {
+    if (index === completedImages.length - 1) return;
+    const updated = [...completedImages];
+    [updated[index], updated[index + 1]] = [updated[index + 1], updated[index]];
+    setCompletedImages(updated);
   };
 
   return (
@@ -133,13 +165,39 @@ export default function EditProjectForm({ project }: EditProjectFormProps) {
           </div>
 
           {/* 完成写真 */}
-          <ImageUpload
-            value={formData.completed_image_url}
-            onChange={(url) =>
-              setFormData({ ...formData, completed_image_url: url })
-            }
-            label="完成写真"
-          />
+          <div>
+            <div className="mb-2 flex items-center justify-between">
+              <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300">
+                完成写真
+              </label>
+              <button
+                type="button"
+                onClick={addCompletedImage}
+                className="text-sm text-blue-600 hover:underline dark:text-blue-400"
+              >
+                + 完成写真を追加
+              </button>
+            </div>
+            {completedImages.map((imageUrl, index) => (
+              <div key={`completed-${index}-${imageUrl.substring(0, 20)}`} className="mb-4">
+                <CompletedImageInput
+                  value={imageUrl}
+                  onChange={(url) => updateCompletedImage(index, url)}
+                  label={`完成写真 ${index + 1}`}
+                  onRemove={() => removeCompletedImage(index)}
+                  onMoveUp={() => moveCompletedImageUp(index)}
+                  onMoveDown={() => moveCompletedImageDown(index)}
+                  canMoveUp={index > 0}
+                  canMoveDown={index < completedImages.length - 1}
+                />
+              </div>
+            ))}
+            {completedImages.length === 0 && (
+              <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                完成写真がない場合は空欄のままでもOKです
+              </p>
+            )}
+          </div>
 
           {/* 編み図 */}
           <div>

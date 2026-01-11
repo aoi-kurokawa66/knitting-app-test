@@ -47,21 +47,25 @@ export default async function ProjectDetailPage({ params }: Props) {
       </div>
 
       {/* 完成写真 */}
-      {project.completed_image_url && (
+      {((project as any).completedImages && (project as any).completedImages.length > 0) || project.completed_image_url ? (
         <div className="mb-8">
           <h2 className="mb-4 text-xl font-semibold text-zinc-900 dark:text-zinc-50">
             完成写真
           </h2>
-          <div className="relative aspect-square w-full max-w-2xl overflow-hidden rounded-lg bg-zinc-100 dark:bg-zinc-800">
-            <Image
-              src={project.completed_image_url}
-              alt={project.title}
-              fill
-              className="object-cover"
-            />
-          </div>
+          {(project as any).completedImages && (project as any).completedImages.length > 0 ? (
+            <ImageGallery images={(project as any).completedImages} />
+          ) : project.completed_image_url ? (
+            <div className="relative aspect-square w-full max-w-2xl overflow-hidden rounded-lg bg-zinc-100 dark:bg-zinc-800">
+              <Image
+                src={project.completed_image_url}
+                alt={project.title}
+                fill
+                className="object-cover"
+              />
+            </div>
+          ) : null}
         </div>
-      )}
+      ) : null}
 
       {/* 編み図ギャラリー */}
       {project.patterns && project.patterns.length > 0 && (

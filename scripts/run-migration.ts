@@ -19,14 +19,33 @@ const sql = postgres(connectionString, {
 });
 
 async function runMigration() {
+  const migrations = [
+    "001_create_projects_table.sql",
+    "002_create_patterns_table.sql",
+    "003_add_category_to_projects.sql",
+    "004_create_completed_images_table.sql",
+  ];
+
   try {
-    const migrationFile = join(process.cwd(), "migrations", "003_add_category_to_projects.sql");
-    const migrationSQL = readFileSync(migrationFile, "utf-8");
+    for (const migrationFile of migrations) {
+      const migrationPath = join(process.cwd(), "migrations", migrationFile);
+      const migrationSQL = readFileSync(migrationPath, "utf-8");
+      
+      console.log(`Running migration: ${migrationFile}`);
+      try {
+        await sql.unsafe(migrationSQL);
+        console.log(`✓ ${migrationFile} completed`);
+      } catch (error: any) {
+        // 既に存在するオブジェクトのエラーは無視
+        if (error?.code === '42P07' || error?.code === '42710' || error?.code === '23505') {
+          console.log(`⚠ ${migrationFile}: Some objects already exist, skipping...`);
+        } else {
+          throw error;
+        }
+      }
+    }
     
-    console.log("Running migration: 003_add_category_to_projects.sql");
-    await sql.unsafe(migrationSQL);
-    
-    console.log("Migration completed successfully!");
+    console.log("\n✅ All migrations completed successfully!");
   } catch (error) {
     console.error("Migration failed:", error);
     process.exit(1);

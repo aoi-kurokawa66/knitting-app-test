@@ -16,7 +16,7 @@ export default function GalleryGrid({ projects }: GalleryGridProps) {
 
   // 完成写真があるプロジェクトのみをフィルタリング
   let filteredProjects = projects.filter(
-    (project) => project.completed_image_url
+    (project) => project.first_completed_image_url || project.completed_image_url
   );
 
   // カテゴリでフィルタリング
@@ -80,11 +80,11 @@ export default function GalleryGrid({ projects }: GalleryGridProps) {
               className="group relative aspect-square w-full overflow-hidden rounded-lg bg-zinc-100 transition-transform hover:scale-105 dark:bg-zinc-800"
             >
               <Image
-                src={project.completed_image_url!}
+                src={(project.first_completed_image_url || project.completed_image_url)!}
                 alt={project.title}
                 fill
                 className="object-cover"
-                unoptimized={project.completed_image_url!.startsWith("data:")}
+                unoptimized={(project.first_completed_image_url || project.completed_image_url)!.startsWith("data:")}
               />
               {/* ホバー時にタイトルを表示 */}
               <div className="absolute inset-0 bg-black/0 transition-colors group-hover:bg-black/40">

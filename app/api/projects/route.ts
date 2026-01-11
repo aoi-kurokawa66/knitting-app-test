@@ -22,7 +22,7 @@ export async function POST(request: NextRequest) {
     const {
       title,
       description,
-      completed_image_url,
+      completed_images,
       youtube_url,
       yarn_color_count,
       pattern_images,
@@ -54,9 +54,29 @@ export async function POST(request: NextRequest) {
     // 作品を作成
     const [project] = await sql`
       INSERT INTO projects (title, description, completed_image_url, youtube_url, yarn_color_count, category)
-      VALUES (${title}, ${description || null}, ${completed_image_url || null}, ${youtube_url || null}, ${yarn_color_count}, ${category || null})
+      VALUES (${title}, ${description || null}, NULL, ${youtube_url || null}, ${yarn_color_count}, ${category || null})
       RETURNING *
     `;
+
+    // 完成写真を追加
+    if (completed_images && Array.isArray(completed_images)) {
+      const validCompletedImages = completed_images.filter(
+        (url: string) => url && url.trim() !== ""
+      );
+
+      if (validCompletedImages.length > 0) {
+        for (let index = 0; index < validCompletedImages.length; index++) {
+          try {
+            await sql`
+              INSERT INTO completed_images (project_id, image_url, display_order)
+              VALUES (${project.id}, ${validCompletedImages[index]}, ${index})
+            `;
+          } catch (completedImageError) {
+            console.error(`Error inserting completed image ${index}:`, completedImageError);
+          }
+        }
+      }
+    }
 
     // 編み図を追加
     if (pattern_images && Array.isArray(pattern_images)) {
